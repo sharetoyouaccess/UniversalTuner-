@@ -1,0 +1,252 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: universalTuner 2.5.2\n"
+"POT-Creation-Date: 2026-07-08 21:04+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: th\n"
+
+msgid "Universal Tuner ready"
+msgstr "Universal Tuner พร้อมใช้งาน"
+
+msgid "Open Universal Tuner dialog"
+msgstr "เปิดหน้าต่าง Universal Tuner"
+
+msgid "Live listening stopped: the microphone appears to have disconnected or stopped responding. Press L to try again."
+msgstr "การฟังสดหยุดทำงาน ไมโครโฟนดูเหมือนจะหลุดการเชื่อมต่อหรือไม่ตอบสนอง กด L เพื่อลองใหม่อีกครั้ง"
+
+msgid "Invalid selection"
+msgstr "ตัวเลือกไม่ถูกต้อง"
+
+msgid "No reading yet"
+msgstr "ยังไม่มีผลการอ่าน"
+
+msgid "Playing %s"
+msgstr "กำลังเล่น %s"
+
+msgid "Selected %s"
+msgstr "เลือก %s"
+
+msgid "Idle"
+msgstr "ว่าง"
+
+msgid "Playback stopped"
+msgstr "หยุดการเล่นแล้ว"
+
+msgid "Could not start the microphone. Check your microphone is connected and permitted."
+msgstr "ไม่สามารถเปิดไมโครโฟนได้ ตรวจสอบว่าไมโครโฟนเชื่อมต่ออยู่และได้รับอนุญาตแล้ว"
+
+msgid "Could not start the microphone: %s. Check your microphone is connected and permitted."
+msgstr "ไม่สามารถเปิดไมโครโฟนได้: %s ตรวจสอบว่าไมโครโฟนเชื่อมต่ออยู่และได้รับอนุญาตแล้ว"
+
+msgid "Default (system default)"
+msgstr "ค่าเริ่มต้น (ค่าเริ่มต้นของระบบ)"
+
+msgid "on"
+msgstr "เปิด"
+
+msgid "off"
+msgstr "ปิด"
+
+msgid "Sample rate"
+msgstr "อัตราสุ่มตัวอย่าง"
+
+msgid "Select the audio sample rate. Higher values may sound smoother."
+msgstr "เลือกอัตราสุ่มตัวอย่างเสียง ค่าที่สูงขึ้นอาจให้เสียงที่นุ่มนวลกว่า"
+
+msgid "A4 reference"
+msgstr "ความถี่อ้างอิง A4"
+
+msgid "Set the A4 concert pitch used to calculate all note frequencies."
+msgstr "ตั้งค่าความถี่อ้างอิงคอนเสิร์ต A4 ที่ใช้คำนวณความถี่ของโน้ตทั้งหมด"
+
+msgid "Gap between repeats"
+msgstr "ช่วงเวลาระหว่างการเล่นซ้ำ"
+
+msgid "Set the silence between repeated tones."
+msgstr "ตั้งค่าความเงียบระหว่างเสียงที่เล่นซ้ำ"
+
+msgid "Beep length"
+msgstr "ความยาวเสียงบี๊พ"
+
+msgid "Set how long the confirmation beep plays when a live tuning reading is exactly in tune."
+msgstr "ตั้งค่าความยาวของเสียงบี๊พยืนยันเมื่อผลการฟังสดตรงเป๊ะ"
+
+msgid "Tone length"
+msgstr "ความยาวของเสียง"
+
+msgid "Set how long each reference tone plays."
+msgstr "ตั้งค่าความยาวของเสียงอ้างอิงแต่ละครั้ง"
+
+msgid "Microphone device"
+msgstr "อุปกรณ์ไมโครโฟน"
+
+msgid "Choose which microphone live listening uses. Default uses whatever Windows currently treats as the default recording device."
+msgstr "เลือกไมโครโฟนที่จะใช้สำหรับการฟังสด ค่าเริ่มต้นจะใช้อุปกรณ์บันทึกเสียงเริ่มต้นของ Windows ในขณะนั้น"
+
+msgid "Audio quality"
+msgstr "คุณภาพเสียง"
+
+msgid "Pitch standard"
+msgstr "มาตรฐานระดับเสียง"
+
+msgid "Pause between tones"
+msgstr "การหยุดพักระหว่างเสียง"
+
+msgid "In-tune confirmation beep"
+msgstr "เสียงบี๊พยืนยันเมื่อตรงเป๊ะ"
+
+msgid "Reference tone duration"
+msgstr "ความยาวเสียงอ้างอิง"
+
+msgid "Live listening input"
+msgstr "อุปกรณ์นำเข้าสำหรับการฟังสด"
+
+msgid "OK"
+msgstr "ตกลง"
+
+msgid "Cancel"
+msgstr "ยกเลิก"
+
+msgid "Advanced settings reset to defaults. Press OK to save or Cancel to discard."
+msgstr "รีเซ็ตการตั้งค่าขั้นสูงเป็นค่าเริ่มต้นแล้ว กด ตกลง เพื่อบันทึก หรือ ยกเลิก เพื่อละทิ้งการเปลี่ยนแปลง"
+
+msgid "Instrument"
+msgstr "เครื่องดนตรี"
+
+msgid "Tuning"
+msgstr "การตั้งสาย"
+
+msgid "Selection"
+msgstr "รายการที่เลือก"
+
+msgid "Live listening: %s. Chromatic mode: %s. Beep: %s."
+msgstr "การฟังสด: %s โหมดโครมาติก: %s เสียงบี๊พ: %s"
+
+msgid "In tune"
+msgstr "ตรง"
+
+msgid "Sharp"
+msgstr "สูง"
+
+msgid "Flat"
+msgstr "ต่ำ"
+
+msgid "Detected %.2f Hz. Target %s %.2f Hz. %+.1f cents (%+.1f%%). %s."
+msgstr "ตรวจพบ %.2f เฮิรตซ์ เป้าหมาย %s %.2f เฮิรตซ์ %+.1f เซ็นต์ (%+.1f%%) %s"
+
+msgid "Advanced settings"
+msgstr "การตั้งค่าขั้นสูง"
+
+msgid "Advanced audio settings. These options change how the tuner sounds and how note frequencies are calculated."
+msgstr "การตั้งค่าเสียงขั้นสูง ตัวเลือกเหล่านี้เปลี่ยนแปลงเสียงของเครื่องตั้งสายและวิธีการคำนวณความถี่ของโน้ต"
+
+msgid "Sets the audio sample rate. 44100 is the standard default and works well for most users."
+msgstr "ตั้งค่าอัตราสุ่มตัวอย่างเสียง 44100 เป็นค่ามาตรฐานที่เหมาะกับผู้ใช้ส่วนใหญ่"
+
+msgid "Sets the master reference pitch. Standard concert tuning is 440 hertz."
+msgstr "ตั้งค่าระดับเสียงอ้างอิงหลัก ระดับเสียงคอนเสิร์ตมาตรฐานคือ 440 เฮิรตซ์"
+
+msgid "Controls the pause before the tone repeats again. Use 0 for almost continuous playback."
+msgstr "ควบคุมการหยุดพักก่อนที่เสียงจะเล่นซ้ำอีกครั้ง ใช้ 0 เพื่อให้เล่นต่อเนื่องเกือบตลอดเวลา"
+
+msgid "Beep length (in-tune confirmation)"
+msgstr "ความยาวเสียงบี๊พ (การยืนยันเมื่อตรงเป๊ะ)"
+
+msgid "Controls the length of the beep played when live listening detects an exact match. Use the O shortcut in the main window to turn this beep off entirely."
+msgstr "ควบคุมความยาวของเสียงบี๊พที่เล่นเมื่อการฟังสดตรวจพบว่าตรงเป๊ะ ใช้คีย์ลัด O ในหน้าต่างหลักเพื่อปิดเสียงบี๊พนี้ทั้งหมด"
+
+msgid "Controls the length of each reference tone. Also adjustable from the main window with the plus and minus keys."
+msgstr "ควบคุมความยาวของเสียงอ้างอิงแต่ละครั้ง สามารถปรับได้จากหน้าต่างหลักด้วยปุ่มบวกและลบเช่นกัน"
+
+msgid "Only affects live microphone listening (the L key) - reference tone playback is unaffected. If listening is already on, changing this restarts it with the new device."
+msgstr "มีผลกับการฟังสดจากไมโครโฟนเท่านั้น (ปุ่ม L) ไม่มีผลกับการเล่นเสียงอ้างอิง หากการฟังสดเปิดอยู่แล้ว การเปลี่ยนค่านี้จะเริ่มการฟังสดใหม่ด้วยอุปกรณ์ใหม่"
+
+msgid "Press Tab to move between fields. Press Enter on OK to save or Escape to cancel. Reset to defaults only changes the fields shown here - press Cancel afterwards to discard."
+msgstr "กด Tab เพื่อย้ายระหว่างช่องต่างๆ กด Enter ที่ปุ่มตกลงเพื่อบันทึก หรือ Escape เพื่อยกเลิก การรีเซ็ตเป็นค่าเริ่มต้นจะเปลี่ยนเฉพาะช่องที่แสดงอยู่นี้ - กดยกเลิกภายหลังเพื่อละทิ้งการเปลี่ยนแปลง"
+
+msgid "Reset to defaults"
+msgstr "รีเซ็ตเป็นค่าเริ่มต้น"
+
+msgid "Main tuning controls"
+msgstr "ตัวควบคุมการตั้งสายหลัก"
+
+msgid "Shortcuts. Space play or stop selected item, or during live listening, cancel the in-progress in-tune beep and announcement. Home louder. End softer. Page Up longer tone. Page Down shorter tone. Number keys play strings in order. L toggles live microphone listening. C toggles chromatic mode. O toggles the in-tune confirmation beep. R repeats the last live tuning reading."
+msgstr "คีย์ลัด Space เล่นหรือหยุดรายการที่เลือก หรือระหว่างการฟังสด ใช้ยกเลิกเสียงบี๊พและคำประกาศที่กำลังเล่นอยู่ Home เพิ่มความดัง End ลดความดัง Page Up เพิ่มความยาวเสียง Page Down ลดความยาวเสียง ปุ่มตัวเลขเล่นสายตามลำดับ L สลับการฟังสดจากไมโครโฟน C สลับโหมดโครมาติก O สลับเสียงบี๊พยืนยันเมื่อตรงเป๊ะ R เล่นผลการฟังสดล่าสุดซ้ำ"
+
+msgid "Live listening: off. Chromatic mode: off."
+msgstr "การฟังสด: ปิด โหมดโครมาติก: ปิด"
+
+msgid "Start listening (L)"
+msgstr "เริ่มฟัง (L)"
+
+msgid "Chromatic mode: off (C)"
+msgstr "โหมดโครมาติก: ปิด (C)"
+
+msgid "Beep: on (O)"
+msgstr "เสียงบี๊พ: เปิด (O)"
+
+msgid "Close"
+msgstr "ปิด"
+
+msgid "Volume %d percent. Tone length %.1f seconds. A4 %.1f. Sample rate %d. Gap %.2f seconds. Beep length %.1f seconds."
+msgstr "ความดัง %d เปอร์เซ็นต์ ความยาวเสียง %.1f วินาที A4 %.1f อัตราสุ่มตัวอย่าง %d ช่วงเว้น %.2f วินาที ความยาวเสียงบี๊พ %.1f วินาที"
+
+msgid "Stop listening (L)"
+msgstr "หยุดฟัง (L)"
+
+msgid "Chromatic mode: %s (C)"
+msgstr "โหมดโครมาติก: %s (C)"
+
+msgid "Beep: %s (O)"
+msgstr "เสียงบี๊พ: %s (O)"
+
+msgid "Live listening on"
+msgstr "เปิดการฟังสด"
+
+msgid "Live listening off"
+msgstr "ปิดการฟังสด"
+
+msgid "Chromatic mode on"
+msgstr "เปิดโหมดโครมาติก"
+
+msgid "Chromatic mode off"
+msgstr "ปิดโหมดโครมาติก"
+
+msgid "Beep on"
+msgstr "เปิดเสียงบี๊พ"
+
+msgid "Beep off"
+msgstr "ปิดเสียงบี๊พ"
+
+msgid "Volume %d percent"
+msgstr "ความดัง %d เปอร์เซ็นต์"
+
+msgid "Tone length %.1f seconds"
+msgstr "ความยาวเสียง %.1f วินาที"
+
+msgid "Advanced settings updated"
+msgstr "อัปเดตการตั้งค่าขั้นสูงแล้ว"
+
+msgid "Playing. %s"
+msgstr "กำลังเล่น %s"
+
+msgid "In tune."
+msgstr "ตรงเป๊ะ"
+
+msgid "Note %s. In tune."
+msgstr "โน้ต %s ตรงเป๊ะ"
+
+msgid "Note %s. Sharp by plus %.1f percent."
+msgstr "โน้ต %s เพี้ยนสูงบวก %.1f เปอร์เซ็นต์"
+
+msgid "Note %s. Flat by minus %.1f percent."
+msgstr "โน้ต %s เพี้ยนต่ำลบ %.1f เปอร์เซ็นต์"
+
+msgid "Sharp by plus %.1f percent."
+msgstr "เพี้ยนสูงบวก %.1f เปอร์เซ็นต์"
+
+msgid "Flat by minus %.1f percent."
+msgstr "เพี้ยนต่ำลบ %.1f เปอร์เซ็นต์"
+
