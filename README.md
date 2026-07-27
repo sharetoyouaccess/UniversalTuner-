@@ -1,4 +1,4 @@
-Universal Tuner for NVDA
+  Universal Tuner for NVDA
 Universal Tuner is an accessible instrument tuner add-on for NVDA. It plays reference tones for over two dozen instruments and tunings, and can also listen through your microphone in real time and tell you whether the note you just played is in tune, sharp, or flat.
 Opening the tuner
 Press NVDA+shift+g to open the Universal Tuner window from anywhere in Windows.
