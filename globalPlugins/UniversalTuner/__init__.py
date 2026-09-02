@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Universal Tuner for NVDA - v2.5.3
+Universal Tuner for NVDA - v2026.09.09
 
 Package layout: instruments / tone_engine / pitch_detect / tuning_feedback /
 mic_capture / live_tuner / settings / ui_dialogs - each concern lives in its
@@ -10,8 +10,8 @@ history; this header only tracks structural/testing notes that stay
 relevant across versions.
 
 Settings (A4, volume, tone length, gap, sample rate, chromatic mode, beep
-length/on-off, microphone device, last instrument/tuning) persist across
-NVDA restarts via NVDA's config system.
+length/on-off, microphone device, last instrument/tuning, capo position)
+persist across NVDA restarts via NVDA's config system.
 
 TESTING STATUS:
 This add-on was originally developed in a sandbox with no Windows, no
@@ -24,10 +24,16 @@ sine-wave data. As of v2.5.2, the microphone capture code
 L/C/O/R shortcuts, mic device switching, and disconnect detection), the
 Advanced settings dialog, settings persistence across NVDA restarts, and
 the Thai/English announcements have all additionally been manually
-verified on a real NVDA + Windows machine and confirmed working. This
-covers one tester's hardware/microphone/Windows configuration - if you
-run into unexpected behaviour on a different microphone or Windows
-setup, please report it.
+verified on a real NVDA + Windows machine and confirmed working. As of
+v2026.09.09, the new instruments/tunings, the 12-key (1-9, 0, -, =)
+direct string-selection shortcut, and capo simulation ([ and ]) have
+also been manually tested end-to-end on Windows 11 with the latest
+official NVDA release (2026.1.1) and confirmed working. NVDA 2026.2's
+release notes list no add-on API breaking changes, and this add-on has
+since also been manually tested end-to-end on Windows 11 with NVDA
+2026.2 and confirmed working. This covers one tester's
+hardware/microphone/Windows configuration - if you run into unexpected
+behaviour on a different microphone or Windows setup, please report it.
 """
 import globalPluginHandler
 import gui
@@ -45,6 +51,8 @@ from .instruments import (
     get_notes_for,
     get_display_note_for_string_number,
     PAIRED_INSTRUMENT_MODES,
+    CAPO_ELIGIBLE_INSTRUMENTS,
+    MAX_CAPO_FRETS,
 )
 from .tone_engine import ReferenceToneEngine
 from .live_tuner import LiveTunerController
@@ -91,6 +99,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self._beepDuration = saved["beepDuration"]
         self._beepEnabled = saved["beepEnabled"]
         self._micDeviceName = saved["micDeviceName"]
+        self._capo = saved["capo"]
 
         # Last message spoken by the live tuner (chromatic on or off) -
         # kept so the "R" shortcut can repeat it if the user didn't catch
@@ -121,6 +130,15 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self._liveTuner.set_device(find_device_id_by_name(self._micDeviceName) if self._micDeviceName else None)
         self._currentTargetFreq = None
         self._currentTargetNote = None
+        # The un-transposed "identity" note last selected/played (via
+        # either the Selection dropdown or a number-key course press),
+        # kept separately from _currentTargetNote (which may be capo-
+        # transposed) so that changing the capo position can recompute
+        # the sounding target from the correct base note instead of
+        # compounding an already-shifted one. Also tracks which
+        # instrument that note belongs to, since capo eligibility is
+        # per-instrument (see instruments.CAPO_ELIGIBLE_INSTRUMENTS).
+        self._currentIdentityNote = None
 
     def terminate(self):
         try:
@@ -252,7 +270,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             self._lastTuning = tuning
             noteName = get_display_note_for_string_number(instrument, tuning, displayedNumber)
             if noteName:
-                self._pushLiveTarget(noteName)
+                self._currentIdentityNote = noteName
+                self._pushLiveTarget(self._applyCapo(instrument, noteName))
             self._saveSettings()
 
         def onToggleListen():
@@ -284,6 +303,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 self._pushLiveTarget(self._currentTargetNote)
             self._saveSettings()
 
+        def onCapoChange(delta):
+            return self._setCapo(delta)
+
         def onClosed():
             self._dlg = None
 
@@ -299,10 +321,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             onToggleChromatic,
             onToggleBeep,
             onRepeatLast,
+            onCapoChange,
             initialChromatic=self._chromaticMode,
             initialInstrument=self._lastInstrument,
             initialTuning=self._lastTuning,
             initialBeepEnabled=self._beepEnabled,
+            initialCapo=self._capo,
             onClosed=onClosed,
         )
         self._dlg.Show()
@@ -338,6 +362,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             "beepDuration": self._beepDuration,
             "beepEnabled": self._beepEnabled,
             "micDeviceName": self._micDeviceName,
+            "capo": self._capo,
         })
 
     # ------------------------------------------------------------------
@@ -490,6 +515,42 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             return None
         return midi_to_freq(midi_num, self._a4)
 
+    def _applyCapo(self, instrument, noteName):
+        """Returns the note noteName will actually sound as with the
+        current capo position (a capo raises every open string by the
+        same number of semitones, same as clamping across the neck).
+        Returns noteName unchanged if capo is off, the instrument has no
+        frets (instruments.CAPO_ELIGIBLE_INSTRUMENTS), or noteName can't
+        be resolved. Kept as a single, small, no-op-when-off helper so
+        every playback/live-tuning-target path can call it without its
+        own separate capo-aware logic."""
+        if not self._capo or noteName is None:
+            return noteName
+        if instrument not in CAPO_ELIGIBLE_INSTRUMENTS:
+            return noteName
+        midi = NOTE_TO_MIDI.get(noteName)
+        if midi is None:
+            return noteName
+        shifted = midi_to_note_name(midi + self._capo)
+        return shifted if shifted is not None else noteName
+
+    def _setCapo(self, delta):
+        """"[" / "]" shortcut (ui_dialogs.py). Returns the resulting capo
+        value (0 = off) for the dialog to announce, or None if capo isn't
+        applicable to the currently selected instrument - the stored
+        value is left untouched in that case (switching back to a
+        fretted instrument brings it back automatically) rather than
+        silently resetting it."""
+        if self._instrument not in CAPO_ELIGIBLE_INSTRUMENTS:
+            return None
+        newValue = max(0, min(MAX_CAPO_FRETS, self._capo + int(delta)))
+        if newValue != self._capo:
+            self._capo = newValue
+            if self._currentIdentityNote:
+                self._pushLiveTarget(self._applyCapo(self._instrument, self._currentIdentityNote))
+            self._saveSettings()
+        return newValue
+
     def _get_course_target(self, instrument, tuning, courseNumber):
         course_notes = get_notes_for(instrument, tuning)
         count = len(course_notes)
@@ -514,10 +575,31 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 secondaryNote = primaryNote
         elif mode == "unison_pairs":
             secondaryNote = primaryNote
+        elif mode == "charango":
+            # Charango's 3rd course (index 2) is an octave pair, not a
+            # unison pair - see instruments.py's PAIRED_INSTRUMENT_MODES
+            # comment and get_physical_notes_for() for the full rationale.
+            if idx == 2:
+                secondaryNote = midi_to_note_name(primaryMidi - 12)
+                if secondaryNote is None:
+                    secondaryNote = primaryNote
+            else:
+                secondaryNote = primaryNote
+
+        # Capo (v2026.09.09): primaryNote/secondaryNote themselves stay
+        # untransposed - ui_dialogs.py's Selection-dropdown sync matches
+        # against the instrument's actual open-string notes, so changing
+        # what these mean would break that. The *sounding* notes (what
+        # actually gets played/announced/compared against) are a
+        # separate pair of fields; see play_course().
+        primarySounding = self._applyCapo(instrument, primaryNote)
+        secondarySounding = self._applyCapo(instrument, secondaryNote) if secondaryNote is not None else None
 
         return {
             "primaryNote": primaryNote,
             "secondaryNote": secondaryNote,
+            "primarySounding": primarySounding,
+            "secondarySounding": secondarySounding,
             "isPaired": bool(mode),
             "courseNumber": int(courseNumber),
         }
@@ -590,6 +672,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
         primaryNote = target["primaryNote"]
         secondaryNote = target["secondaryNote"]
+        primarySounding = target["primarySounding"]
+        secondarySounding = target["secondarySounding"]
         isPaired = target["isPaired"]
 
         key = ("course", instrument, tuning, int(courseNumber))
@@ -604,30 +688,38 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             self._lastCourseKey = None
             self._courseToggle = 0
 
+        # playNote is the identity note (unaffected by capo) - returned
+        # to the caller so ui_dialogs.py's Selection-dropdown sync keeps
+        # matching against the instrument's real open-string notes.
+        # soundingNote is what's actually played/announced/compared
+        # against, which is capo-transposed when applicable.
         playNote = primaryNote
+        soundingNote = primarySounding
         if isPaired and self._courseToggle == 1 and secondaryNote is not None:
             playNote = secondaryNote
+            soundingNote = secondarySounding if secondarySounding is not None else secondaryNote
 
-        playFreq = self._get_freq_for_note_name(playNote)
+        playFreq = self._get_freq_for_note_name(soundingNote)
         if playFreq is None:
             ui.message(_("Invalid selection"))
             return None
 
         self._instrument = instrument
         self._tuning = tuning
+        self._currentIdentityNote = playNote
         # Number-key plays now update the same shared target the Selection
         # dropdown uses, so Space bar and the live tuner both follow
         # whichever note was most recently triggered - by dropdown
         # navigation or by a number key, whichever happened last.
-        self._pushLiveTarget(playNote)
+        self._pushLiveTarget(soundingNote)
 
         if self._liveTuner.isRunning():
             if self._chromaticMode:
-                self._announceSelectionOnlyForListening(playNote)
+                self._announceSelectionOnlyForListening(soundingNote)
             else:
-                self._playNoteOnceForListening(playNote, playFreq)
+                self._playNoteOnceForListening(soundingNote, playFreq)
         else:
-            self._playNote(playNote, playFreq)
+            self._playNote(soundingNote, playFreq)
 
         return playNote
 
