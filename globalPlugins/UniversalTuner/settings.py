@@ -51,6 +51,10 @@ CONFSPEC = {
     # listening starts (see mic_capture.find_device_id_by_name). Empty
     # string means "use the system default recording device".
     "micDeviceName": "string(default='')",
+    # v2026.09.09: capo simulation, in frets/semitones (0 = no capo).
+    # Only has an effect on instruments with frets - see
+    # instruments.CAPO_ELIGIBLE_INSTRUMENTS.
+    "capo": "integer(min=0, max=9, default=0)",
 }
 
 _DEFAULTS = {
@@ -65,6 +69,7 @@ _DEFAULTS = {
     "beepDuration": 5.0,
     "beepEnabled": True,
     "micDeviceName": "",
+    "capo": 0,
 }
 
 # Public read-only copy of the defaults, for the Advanced settings dialog's
@@ -104,6 +109,7 @@ def load():
             "beepDuration": float(section["beepDuration"]),
             "beepEnabled": bool(section["beepEnabled"]),
             "micDeviceName": str(section["micDeviceName"]),
+            "capo": int(section["capo"]),
         }
     except Exception:
         log.error("UniversalTuner: failed to load settings, using defaults", exc_info=True)
