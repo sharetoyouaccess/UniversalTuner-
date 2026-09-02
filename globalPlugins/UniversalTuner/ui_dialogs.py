@@ -46,6 +46,7 @@ from .instruments import (
     parse_string_number,
     get_course_count,
     find_displayed_number_for_note,
+    CAPO_ELIGIBLE_INSTRUMENTS,
 )
 from .mic_capture import list_input_devices
 from . import settings as tuner_settings
@@ -269,10 +270,12 @@ class TunerDialog(wx.Dialog):
         onToggleChromatic,
         onToggleBeep,
         onRepeatLast,
+        onCapoChange,
         initialChromatic=False,
         initialInstrument=None,
         initialTuning=None,
         initialBeepEnabled=True,
+        initialCapo=0,
         onClosed=None,
     ):
         wx.Dialog.__init__(self, parent, title=_("Universal Tuner"), style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
@@ -287,12 +290,14 @@ class TunerDialog(wx.Dialog):
         self.onToggleChromatic = onToggleChromatic
         self.onToggleBeep = onToggleBeep
         self.onRepeatLast = onRepeatLast
+        self.onCapoChange = onCapoChange
         self.onClosed = onClosed
         self._previewOn = False
         self._lastF1Time = 0.0
         self._listening = False
         self._chromatic = bool(initialChromatic)
         self._beepEnabled = bool(initialBeepEnabled)
+        self._capo = int(initialCapo)
 
         panel = wx.Panel(self)
         root = wx.BoxSizer(wx.VERTICAL)
@@ -350,7 +355,8 @@ class TunerDialog(wx.Dialog):
                 "in-progress in-tune beep and announcement. Home louder. End softer. "
                 "Page Up longer tone. Page Down shorter tone. Number keys play strings in order. "
                 "L toggles live microphone listening. C toggles chromatic mode. "
-                "O toggles the in-tune confirmation beep. R repeats the last live tuning reading."
+                "O toggles the in-tune confirmation beep. R repeats the last live tuning reading. "
+                "Bracket keys [ and ] lower or raise the capo position, on instruments with frets."
             )
         )
         root.Add(self.hint, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
@@ -404,19 +410,29 @@ class TunerDialog(wx.Dialog):
 
     def _updateQuickInfo(self):
         params = self.getLiveParams()
+        if not self._capo:
+            capoText = _("Capo off.")
+        elif self.instrumentChoice.GetStringSelection() in CAPO_ELIGIBLE_INSTRUMENTS:
+            capoText = _("Capo: fret %d.") % self._capo
+        else:
+            capoText = _("Capo: fret %d (not applied - this instrument has no frets).") % self._capo
         self.quickInfo.SetLabel(
-            _(
-                "Volume %d percent. Tone length %.1f seconds. A4 %.1f. Sample rate %d. Gap %.2f seconds. "
-                "Beep length %.1f seconds."
+            (
+                _(
+                    "Volume %d percent. Tone length %.1f seconds. A4 %.1f. Sample rate %d. Gap %.2f seconds. "
+                    "Beep length %.1f seconds."
+                )
+                % (
+                    int(round(params["volume"] * 100.0)),
+                    float(params["duration"]),
+                    float(params["a4"]),
+                    int(params["sampleRate"]),
+                    float(params["gap"]),
+                    float(params.get("beepDuration", 0.6)),
+                )
             )
-            % (
-                int(round(params["volume"] * 100.0)),
-                float(params["duration"]),
-                float(params["a4"]),
-                int(params["sampleRate"]),
-                float(params["gap"]),
-                float(params.get("beepDuration", 0.6)),
-            )
+            + " "
+            + capoText
         )
         self.Layout()
 
@@ -521,6 +537,23 @@ class TunerDialog(wx.Dialog):
         self._updateLiveStatusLabel()
         ui.message(_("Beep on") if self._beepEnabled else _("Beep off"))
 
+    def _changeCapo(self, delta):
+        # "[" / "]": simulates a capo, raising every string's reference
+        # pitch and live-tuning target by the same number of frets - only
+        # meaningful on instruments with frets (GlobalPlugin._setCapo
+        # returns None and leaves the stored value untouched if the
+        # currently selected instrument doesn't have any, e.g. Violin,
+        # Oud, Erhu).
+        if not self.onCapoChange:
+            return
+        result = self.onCapoChange(delta)
+        if result is None:
+            ui.message(_("Capo isn't available for this instrument"))
+            return
+        self._capo = int(result)
+        self._updateQuickInfo()
+        ui.message(_("Capo: fret %d") % self._capo if self._capo else _("Capo off"))
+
     # ------------------------------------------------------------------
     # Volume / duration / advanced settings
     # ------------------------------------------------------------------
@@ -584,7 +617,7 @@ class TunerDialog(wx.Dialog):
             "กด I เพื่อไปยังรายการเลือกชนิดของเครื่องดนตรี "
             "กด T เพื่อไปยังรายการเลือกรูปแบบการตั้งเสียงหรือการตั้งสาย "
             "กด Space เพื่อเล่นหรือหยุดเสียงของรายการที่เลือกในช่อง Selection "
-            "กดเลข 1 ถึง 9 เพื่อเล่นเสียงตามลำดับสายของเครื่องดนตรี "
+            "กดเลข 1 ถึง 9 ต่อด้วยเลข 0 แล้วก็เครื่องหมายลบและเครื่องหมายเท่ากับ รวม 12 ปุ่ม เพื่อเล่นเสียงตามลำดับสายของเครื่องดนตรี "
             "หากเป็นเครื่องดนตรีที่มีสายคู่ กดเลขเดิมซ้ำเพื่อสลับไปยังเสียงของสายคู่ "
             "กด Home เพื่อเพิ่มความดัง "
             "กด End เพื่อลดความดัง "
@@ -595,6 +628,8 @@ class TunerDialog(wx.Dialog):
             "กด C เพื่อสลับโหมดโครมาติก ซึ่งจะตรวจจับโน้ตที่ใกล้เคียงที่สุดโดยอัตโนมัติแทนการเทียบกับสายที่เลือกไว้ "
             "กด O เพื่อเปิดหรือปิดเสียงบี๊พยืนยันตอนโน้ตตรงเป๊ะ หากต้องการฟังแค่เสียงพูดอย่างเดียว "
             "กด R เพื่อฟังผลการอ่านล่าสุดของการฟังสดซ้ำอีกครั้ง ไม่ว่าจะอยู่ในโหมดโครมาติกหรือไม่ก็ตาม "
+            "กดวงเล็บเหลี่ยมเปิดเพื่อลดตำแหน่งคาโป้ และวงเล็บเหลี่ยมปิดเพื่อเพิ่มตำแหน่งคาโป้ "
+            "ใช้ได้เฉพาะกับเครื่องดนตรีที่มีเฟรตเท่านั้น "
             "กด F1 หนึ่งครั้งเพื่อฟังคำแนะนำเป็นภาษาไทย "
             "กด F1 สองครั้งติดกันเพื่อฟังคำแนะนำเป็นภาษาอังกฤษ "
             "กด Escape เพื่อปิดหน้าต่าง "
@@ -607,7 +642,8 @@ class TunerDialog(wx.Dialog):
             "Press I to move to the instrument selection list "
             "Press T to move to the tuning selection list "
             "Press Space to play or stop the sound of the selected item in the Selection field "
-            "Press numbers 1 to 9 to play strings in order of the instrument "
+            "Press numbers 1 to 9, then 0, minus, and equals - 12 keys in total - "
+            "to play strings in order of the instrument "
             "For paired string instruments, press the same number again to switch to the paired string sound "
             "Press Home to increase volume "
             "Press End to decrease volume "
@@ -621,6 +657,8 @@ class TunerDialog(wx.Dialog):
             "comparing against the currently selected string "
             "Press O to toggle the in-tune confirmation beep on or off, if you only want the spoken reading "
             "Press R to repeat the last live tuning reading, whether chromatic mode is on or off "
+            "Press the left bracket key to lower the capo position, and the right bracket key to raise it - "
+            "only has an effect on instruments with frets "
             "Press F1 once to hear the Thai guide "
             "Press F1 twice quickly to hear the English guide "
             "Press Escape to close the window "
@@ -671,9 +709,11 @@ class TunerDialog(wx.Dialog):
             ord("I"), ord("i"), ord("T"), ord("t"), ord("L"), ord("l"), ord("C"), ord("c"),
             ord("O"), ord("o"), ord("R"), ord("r"),
             ord("1"), ord("2"), ord("3"), ord("4"), ord("5"),
-            ord("6"), ord("7"), ord("8"), ord("9"),
+            ord("6"), ord("7"), ord("8"), ord("9"), ord("0"),
+            ord("-"), ord("="), ord("["), ord("]"),
             wx.WXK_NUMPAD1, wx.WXK_NUMPAD2, wx.WXK_NUMPAD3, wx.WXK_NUMPAD4,
-            wx.WXK_NUMPAD5, wx.WXK_NUMPAD6, wx.WXK_NUMPAD7, wx.WXK_NUMPAD8, wx.WXK_NUMPAD9
+            wx.WXK_NUMPAD5, wx.WXK_NUMPAD6, wx.WXK_NUMPAD7, wx.WXK_NUMPAD8, wx.WXK_NUMPAD9,
+            wx.WXK_NUMPAD0
         ):
             self._onCharHook(evt)
             return
@@ -725,12 +765,26 @@ class TunerDialog(wx.Dialog):
                 self.onRepeatLast()
             return
 
+        if key == ord("["):
+            self._changeCapo(-1)
+            return
+
+        if key == ord("]"):
+            self._changeCapo(1)
+            return
+
+        # Covers the whole top-row run from 1 through = (i.e. everything
+        # before Backspace: 1 2 3 4 5 6 7 8 9 0 - =), giving direct
+        # one-key access to up to 12 courses instead of just 9. Extended
+        # in v2026.09.09 to fit instruments like Guitar 8-string or Oud
+        # that have more than 9 courses/strings.
         numberMap = {
             ord("1"): 1, ord("2"): 2, ord("3"): 3, ord("4"): 4, ord("5"): 5,
-            ord("6"): 6, ord("7"): 7, ord("8"): 8, ord("9"): 9,
+            ord("6"): 6, ord("7"): 7, ord("8"): 8, ord("9"): 9, ord("0"): 10,
+            ord("-"): 11, ord("="): 12,
             wx.WXK_NUMPAD1: 1, wx.WXK_NUMPAD2: 2, wx.WXK_NUMPAD3: 3, wx.WXK_NUMPAD4: 4,
             wx.WXK_NUMPAD5: 5, wx.WXK_NUMPAD6: 6, wx.WXK_NUMPAD7: 7, wx.WXK_NUMPAD8: 8,
-            wx.WXK_NUMPAD9: 9,
+            wx.WXK_NUMPAD9: 9, wx.WXK_NUMPAD0: 10,
         }
         if key in numberMap:
             if self._playCourseNumber(numberMap[key]):
@@ -808,6 +862,7 @@ class TunerDialog(wx.Dialog):
         self._refreshTunings()
         self._refreshStringItems()
         self._notifySelectionTarget()
+        self._updateQuickInfo()  # capo eligibility note depends on instrument
         evt.Skip()
 
     def _onTuningChange(self, evt):
