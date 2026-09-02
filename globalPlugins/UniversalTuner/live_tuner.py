@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+      # -*- coding: utf-8 -*-
 """
 Live microphone tuning: ties mic_capture + pitch_detect + tuning_feedback
 together.
@@ -10,8 +10,13 @@ Split deliberately into two layers:
     fully unit testable with synthetic sample chunks and a fake clock.
   - LiveTunerController: thin real-world wrapper that owns a WaveInRecorder
     and marshals results back to the UI thread via wx.CallAfter. This part
-    cannot be exercised in an automated test (no real mic/Windows here),
-    so keeping it thin means the untested surface is as small as possible.
+    could not be exercised in an automated test in the original sandbox
+    development environment (no real mic/Windows there), which is why it
+    was kept thin. As of v2.5.3 it has been manually tested end-to-end on
+    a real NVDA + Windows machine (live microphone tuning, chromatic mode,
+    the L/C/O/R shortcuts, and microphone device switching all confirmed
+    working there), consistent with the testing-status notes in
+    __init__.py and mic_capture.py.
 """
 import threading
 import time
