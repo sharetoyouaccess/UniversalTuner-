@@ -14,7 +14,7 @@ msgid "Open Universal Tuner dialog"
 msgstr "เปิดหน้าต่าง Universal Tuner"
 
 msgid "Live listening stopped: the microphone appears to have disconnected or stopped responding. Press L to try again."
-msgstr "การฟังสดหยุดทำงาน ไมโครโฟนดูเหมือนจะหลุดการเชื่อมต่อบสนอง กด L เพื่อลองใหม่อีกครั้ง"
+msgstr "การฟังสดหยุดทำงาน ไมโครโฟนดูเหมือนจะหลุดการเชื่อมต่อหรือไม่ตอบสนอง กด L เพื่อลองใหม่อีกครั้ง"
 
 msgid "Invalid selection"
 msgstr "ตัวเลือกไม่ถูกต้อง"
@@ -110,7 +110,7 @@ msgid "Cancel"
 msgstr "ยกเลิก"
 
 msgid "Advanced settings reset to defaults. Press OK to save or Cancel to discard."
-msgstr "รีเซ็ตการตั้งค่าขั้นสูงเป็นค่าเริ่มต้นแล้ว กด ตกลง เพื่อบันทึก หรือ ยกเลิก เพื่อละทิ้งการเปลี่ยนแล้ว"
+msgstr "รีเซ็ตการตั้งค่าขั้นสูงเป็นค่าเริ่มต้นแล้ว กด ตกลง เพื่อบันทึก หรือ ยกเลิก เพื่อละทิ้งการเปลี่ยนแปลง"
 
 msgid "Instrument"
 msgstr "เครื่องดนตรี"
