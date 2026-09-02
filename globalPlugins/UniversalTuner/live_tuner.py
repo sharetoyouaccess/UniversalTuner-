@@ -1,4 +1,4 @@
-      # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 Live microphone tuning: ties mic_capture + pitch_detect + tuning_feedback
 together.
